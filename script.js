@@ -14,7 +14,7 @@ var controls = new THREE.OrbitControls( camera );
 
 // Create light
 var light = new THREE.DirectionalLight( 0xffffff, 1 );
-light.position.set( 10, 10, 10 );
+light.position.set( randomRange(-110.0, 110.0), randomRange(-110.0, 110.0), randomRange(-110.0, 110.0) );
 scene.add( light );
 
 //Light helper
@@ -68,43 +68,86 @@ var tetra = new THREE.Mesh( geometry, material );
 //var face = new THREE.Face3( 0, 1, 2 );
 //geometry.faces.push( face );
 
-var oneFaceBuffer = new THREE.Geometry();
-var face = geometry.faces[0];
-oneFaceBuffer.faces.push( face );
+var oneFaceBuffer = new THREE.Geometry(); // create a buffer to hold one geometric face
+var face = geometry.faces[0];             // set a variable to the 0 index of the starting geometry
+oneFaceBuffer.faces.push( face );         // push the 0 index face from the starting geometry to the buffer
 
+if ( face instanceof THREE.Face3 ) {
 
-oneFaceBuffer.vertices.push(geometry.vertices[face.a]);
-oneFaceBuffer.vertices.push(geometry.vertices[face.b]);
-oneFaceBuffer.vertices.push(geometry.vertices[face.c]);
+  oneFaceBuffer.vertices.push(geometry.vertices[face.a]);  // get the nth vertex for the face and buffer it
+  oneFaceBuffer.vertices.push(geometry.vertices[face.b]);
+  oneFaceBuffer.vertices.push(geometry.vertices[face.c]);
 
-var centroid = new THREE.Vector3( 0, 0, 0 );
-centroid.add( oneFaceBuffer.vertices[ 0 ] );
-centroid.add( oneFaceBuffer.vertices[ 1 ] );
-centroid.add( oneFaceBuffer.vertices[ 2 ] );
-centroid.divideScalar( 3 );
+  var centroid = new THREE.Vector3( 0, 0, 0 );  // create a vector
+  centroid.add( oneFaceBuffer.vertices[ 0 ] );
+  centroid.add( oneFaceBuffer.vertices[ 1 ] );
+  centroid.add( oneFaceBuffer.vertices[ 2 ] );
+  centroid.divideScalar( 3 );
+  oneFaceBuffer.vertices.push(centroid);
+}
+else if ( face instanceof THREE.Face4 ) {
 
-var sphereGeo = new THREE.SphereGeometry( 1, 32, 32 );
-var materialSphere = new THREE.MeshBasicMaterial( {color: 0x0000ff} );
-var sphere = new THREE.Mesh( sphereGeo, materialSphere );
-sphere.position.x = -2.309401035308838
-sphere.position.y = 2.309401035308838
-sphere.position.z = 2.309401035308838
-scene.add( sphere );
+  oneFaceBuffer.vertices.push(geometry.vertices[face.a]);
+  oneFaceBuffer.vertices.push(geometry.vertices[face.b]);
+  oneFaceBuffer.vertices.push(geometry.vertices[face.c]);
+  oneFaceBuffer.vertices.push(geometry.vertices[face.d]);
 
+  var centroid = new THREE.Vector3( 0, 0, 0 );
+  centroid.add( oneFaceBuffer.vertices[ 0 ] );
+  centroid.add( oneFaceBuffer.vertices[ 1 ] );
+  centroid.add( oneFaceBuffer.vertices[ 2 ] );
+  centroid.add( oneFaceBuffer.vertices[ 3 ] );
+  centroid.divideScalar( 4 );
+  oneFaceBuffer.vertices.push(centroid);
+}
 
+//testing sphere is to check centroid
+//testingSphere( centroid.x, centroid.y, centroid.z );
 
+var facetedGeometry = oneFaceBuffer.clone();
+facetedGeometry.faces = [];
 
-var newMaterial = new THREE.MeshBasicMaterial( { color: "#ff0000" } );
-newMesh = new THREE.Mesh( oneFaceBuffer, newMaterial );
+var face1 = new THREE.Face3( 0, 1, 3 )
+facetedGeometry.faces.push( face1 );
+var face2 = new THREE.Face3( 1, 2, 3 )
+facetedGeometry.faces.push( face2 );
+var face3 = new THREE.Face3( 0, 2, 3 )
+facetedGeometry.faces.push( face3 );
+
+//var p = facetedGeometry.vertices[3];
+facetedGeometry.vertices[3].addScalar(randomRange(0.0, 6.0), randomRange(0.0, 6.0), randomRange(0.0, 6.0));
+facetedGeometry.verticesNeedUpdate = true;
+
+// reset order of normals
+for ( var i = 0; i < facetedGeometry.faces.length-1; i ++ ) {
+
+    var face = facetedGeometry.faces[ i ];
+    var temp = face.a;
+    face.a = face.c;
+    face.c = temp;
+
+}
+
+facetedGeometry.computeFaceNormals();
+facetedGeometry.computeVertexNormals();
+facetedGeometry.computeMorphNormals();
+facetedGeometry.verticesNeedUpdate = true;
+facetedGeometry.normalsNeedUpdate = true;
+
+var newMaterial = new THREE.MeshPhongMaterial( { color: "#ff0000" } );
+newMesh = new THREE.Mesh( facetedGeometry, newMaterial );
 newMesh.material.side = THREE.DoubleSide;
 scene.add( newMesh );
-console.log(computeFaceCentroids( oneFaceBuffer ))
+normalsHelper = new THREE.FaceNormalsHelper( newMesh, 2, 0x00ff00, 1 );
+scene.add( normalsHelper );
+var vertexNormalsHelper = new THREE.VertexNormalsHelper( newMesh, 2, 0x00ff00, 1 );
+scene.add( vertexNormalsHelper );
 
 
 mesh = new THREE.Mesh( geometry, material );
 mesh.material.side = THREE.DoubleSide;
 
-// Add cube to Scene
+// Add main mesh to Scene
 scene.add( mesh );
 
 
@@ -119,38 +162,37 @@ var render = function () {
   renderer.render(scene, camera);
 };
 
-function getRandomWithinRange(min, max) {
-  return Math.random() * (max - min) + min;
+function randomRange(min, max) {
+  return ((Math.random() * (max - min) + min)) * (Math.random() < 0.5 ? -1 : 1);
 }
-
 function computeFaceCentroids( geometry ) {
-
     var f, fl, face;
-
     for ( f = 0, fl = geometry.faces.length; f < fl; f ++ ) {
-
         face = geometry.faces[ f ];
         face.centroid = new THREE.Vector3( 0, 0, 0 );
-
         if ( face instanceof THREE.Face3 ) {
-
             face.centroid.add( geometry.vertices[ face.a ] );
             face.centroid.add( geometry.vertices[ face.b ] );
             face.centroid.add( geometry.vertices[ face.c ] );
             face.centroid.divideScalar( 3 );
-
         } else if ( face instanceof THREE.Face4 ) {
-
             face.centroid.add( geometry.vertices[ face.a ] );
             face.centroid.add( geometry.vertices[ face.b ] );
             face.centroid.add( geometry.vertices[ face.c ] );
             face.centroid.add( geometry.vertices[ face.d ] );
             face.centroid.divideScalar( 4 );
-
         }
-
     }
+}
 
+function testingSphere( x, y, z ) {
+  var sphereGeo = new THREE.SphereGeometry( 1, 32, 32 );
+  var materialSphere = new THREE.MeshBasicMaterial( {color: 0x0000ff} );
+  var sphere = new THREE.Mesh( sphereGeo, materialSphere );
+  sphere.position.x = centroid.x
+  sphere.position.y = centroid.y
+  sphere.position.z = centroid.z
+  scene.add( sphere );
 }
 
 render();
