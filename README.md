@@ -3,4 +3,6 @@ This is a small test of a fractal noise algorithm in Three.js. The idea here is 
 
 ![fractal_test1](photo1.png)
 
-[fractal_test2](https://imgur.com/WFRyQ9u)
+![fractal_test2](photo2.png)
+
+![fractal_test3](photo3.png)
