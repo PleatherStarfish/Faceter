@@ -56,10 +56,26 @@ var divisor = 4;
 //scene.add( cube );
 
 // Create a Tetrahedron Mesh with basic material
-var geometry = new THREE.TetrahedronGeometry( 60 );
-var material = new THREE.MeshLambertMaterial( { color: "#ffffff" } );
-var tetra = new THREE.Mesh( geometry, material );
-tetra.material.side = THREE.DoubleSide;
+//var geometry = new THREE.TetrahedronGeometry( 60 );
+
+// Create a convex hull
+var points = [];
+for (var i = 0; i < 20; i++) {
+    var randomX = -25 + Math.round(Math.random() * 50);
+    var randomY = -25 + Math.round(Math.random() * 50);
+    var randomZ = -25 + Math.round(Math.random() * 50);
+    points.push(new THREE.Vector3(randomX, randomY, randomZ));
+}
+//var geometry = new THREE.ConvexGeometry(points);
+var geometry = new THREE.SphereGeometry( 10, 32, 32 );
+// let subdivisionModifier = new THREE.SubdivisionModifier( 2, false );
+// var geometry = hullGeometry.clone();
+// subdivisionModifier.modify(geometry);
+
+
+//var material = new THREE.MeshLambertMaterial( { color: "#ffffff" } );
+//var tetra = new THREE.Mesh( geometry, material );
+//tetra.material.side = THREE.DoubleSide;
 //scene.add( tetra );
 
 var masterGeometry = geometry.clone();    // copy oneFaceBuffer into a new geometry -> facetedGeometry
@@ -73,7 +89,7 @@ for ( var j = 0; j < geometry.vertices.length; j++ ) {
 var faceter = 0; // This is the while-loop control variable. How many times should we facet the shape?
 
 //----------------------------------------------------------------------------------------------------------
-while (faceter < 3) {
+while (faceter < 2) {
     for ( var i = 0; i < geometry.faces.length; i++ ) {
 
           var oneFaceBuffer = new THREE.Geometry(); // create a buffer to hold one geometric face
@@ -124,7 +140,9 @@ while (faceter < 3) {
           //var range = distToCentroidScaling( distanceToCentroid, divisor );
 
           lastVertex = (facetedGeometry.vertices.length - 1)
-          facetedGeometry.vertices[lastVertex].addScalar(randomRange(0.0, 10.0/(faceter+1)), randomRange(0.0, 10.0/(faceter+1)), randomRange(0.0, 10.0/(faceter+1)));
+          if ((Math.random() < 0.5 ? -1 : 1) < 0) {
+              facetedGeometry.vertices[lastVertex].addScalar(randomRange(0.0, 3.0/(faceter+1)), randomRange(0.0, 3.0/(faceter+1)), randomRange(0.0, 3.0/(faceter+1)));
+          }
           facetedGeometry.verticesNeedUpdate = true;
 
           facetedGeometry.computeFaceNormals();
@@ -133,7 +151,7 @@ while (faceter < 3) {
           facetedGeometry.normalsNeedUpdate = true;
 
           //testing sphere is to check centroid
-          testingSphere(facetedGeometry.vertices[lastVertex].x, facetedGeometry.vertices[lastVertex].y, facetedGeometry.vertices[lastVertex].z);
+          //testingSphere(facetedGeometry.vertices[lastVertex].x, facetedGeometry.vertices[lastVertex].y, facetedGeometry.vertices[lastVertex].z);
 
     masterGeometry.faces.shift();
     //console.log(facetedGeometry.faces);
@@ -166,8 +184,8 @@ scene.add( newMesh );
 var render = function () {
   requestAnimationFrame( render );
 
-  newMesh.rotation.x += 0.01;
-  newMesh.rotation.y += 0.01;
+  //newMesh.rotation.x += 0.01;
+  //newMesh.rotation.y += 0.01;
   renderer.sortObjects = false;
   // Render the scene
   renderer.render(scene, camera);
