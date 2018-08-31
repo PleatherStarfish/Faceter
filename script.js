@@ -56,18 +56,25 @@ var divisor = 4;
 //scene.add( cube );
 
 // Create a Tetrahedron Mesh with basic material
-// var geometry = new THREE.TetrahedronGeometry( 60 );
+let geometry = new THREE.TetrahedronGeometry( 60 );
+// const triangle = new THREE.Geometry();
+// triangle.vertices.push(
+//   new THREE.Vector3(1,1,-2),
+//   new THREE.Vector3(1,-2,1),
+//   new THREE.Vector3(-2,1,1)
+// );
+// triangle.faces.push( new THREE.Face3( 0, 1, 2 ) );
 
 // Create a convex hull
-var points = [];
-for (var i = 0; i < 20; i++) {
-    var randomX = -25 + Math.round(Math.random() * 50);
-    var randomY = -25 + Math.round(Math.random() * 50);
-    var randomZ = -25 + Math.round(Math.random() * 50);
-    points.push(new THREE.Vector3(randomX, randomY, randomZ));
-}
+// var points = [];
+// for (var i = 0; i < 15; i++) {
+//     var randomX = -25 + Math.round(Math.random() * 50);
+//     var randomY = -25 + Math.round(Math.random() * 50);
+//     var randomZ = -25 + Math.round(Math.random() * 50);
+//     points.push(new THREE.Vector3(randomX, randomY, randomZ));
+// }
 
-var geometry = new THREE.ConvexGeometry(points);
+// var geometry = new THREE.ConvexGeometry(points);
 // var geometry = new THREE.SphereGeometry( 10, 32, 32 );
 // let subdivisionModifier = new THREE.SubdivisionModifier( 2, false );
 // var geometry = hullGeometry.clone();
@@ -166,16 +173,16 @@ var geometry = new THREE.ConvexGeometry(points);
 // }
 //----------------------------------------------------------------------------------------------------------
 
-let faceter = new Faceter(geometry, 4);
+const faceter = new GeoFaceter(geometry, 2);
 facetedGeometry = faceter.returnFaceted();
-var newMaterial = new THREE.MeshPhongMaterial( { color: "#ff0000" } );
+newMaterial = new THREE.MeshPhongMaterial( { color: "#ff0000" } );
 newMesh = new THREE.Mesh( facetedGeometry, newMaterial );
 newMesh.material.side = THREE.DoubleSide;
 scene.add( newMesh );
 
 // normals helpers
-// normalsHelper = new THREE.FaceNormalsHelper( newMesh, 2, 0x00ff00, 1 );
-// scene.add( normalsHelper );
+normalsHelper = new THREE.FaceNormalsHelper( newMesh, 2, 0x00ff00, 1 );
+scene.add( normalsHelper );
 // var vertexNormalsHelper = new THREE.VertexNormalsHelper( newMesh, 2, 0x00ff00, 1 );
 // scene.add( vertexNormalsHelper );
 
@@ -195,7 +202,7 @@ var render = function () {
 
 // other functions
 
-function randomRange(min, max, plusMin = (Math.random() < 0.5 ? -1 : 1)) {
+function randomRange(min, max, plusMin = (Math.random() < 0.5 ? 1 : 1)) {
   return Math.random() * ((max - min) + min) * plusMin
 }
 
