@@ -15,7 +15,8 @@ var controls = new THREE.OrbitControls( camera );
 // Create light
 var light = new THREE.DirectionalLight( 0xffffff, 1 );
 light.position.set( randomRange(-50.0, 50.0), randomRange(-50.0, 50.0), randomRange(-50.0, 50.0) );
-scene.add( light );
+scene.add( camera );
+camera.add( light );
 
 //Light helper
 var helper = new THREE.DirectionalLightHelper( light );
@@ -56,7 +57,7 @@ var divisor = 4;
 //scene.add( cube );
 
 // Create a Tetrahedron Mesh with basic material
-let geometry = new THREE.TetrahedronGeometry( 60 );
+// let geometry = new THREE.TetrahedronGeometry( 60 );
 // const triangle = new THREE.Geometry();
 // triangle.vertices.push(
 //   new THREE.Vector3(1,1,-2),
@@ -66,15 +67,15 @@ let geometry = new THREE.TetrahedronGeometry( 60 );
 // triangle.faces.push( new THREE.Face3( 0, 1, 2 ) );
 
 // Create a convex hull
-// var points = [];
-// for (var i = 0; i < 15; i++) {
-//     var randomX = -25 + Math.round(Math.random() * 50);
-//     var randomY = -25 + Math.round(Math.random() * 50);
-//     var randomZ = -25 + Math.round(Math.random() * 50);
-//     points.push(new THREE.Vector3(randomX, randomY, randomZ));
-// }
+var points = [];
+for (var i = 0; i < 15; i++) {
+    var randomX = -25 + Math.round(Math.random() * 50);
+    var randomY = -25 + Math.round(Math.random() * 50);
+    var randomZ = -25 + Math.round(Math.random() * 50);
+    points.push(new THREE.Vector3(randomX, randomY, randomZ));
+}
 
-// var geometry = new THREE.ConvexGeometry(points);
+var geometry = new THREE.ConvexGeometry(points);
 // var geometry = new THREE.SphereGeometry( 10, 32, 32 );
 // let subdivisionModifier = new THREE.SubdivisionModifier( 2, false );
 // var geometry = hullGeometry.clone();
@@ -175,7 +176,7 @@ let geometry = new THREE.TetrahedronGeometry( 60 );
 
 const faceter = new GeoFaceter(geometry, 2);
 facetedGeometry = faceter.returnFaceted();
-newMaterial = new THREE.MeshPhongMaterial( { color: "#ff0000" } );
+newMaterial = new THREE.MeshPhongMaterial( { color: "#d7d7d7" } );
 newMesh = new THREE.Mesh( facetedGeometry, newMaterial );
 newMesh.material.side = THREE.DoubleSide;
 scene.add( newMesh );
