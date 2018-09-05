@@ -48,24 +48,6 @@ var divisor = 4;
 // GEOMETRY
 // ------------------------------------------------
 
-// Create a Cube Mesh with basic material
-//var geometry = new THREE.BoxGeometry( 1, 1, 1 );
-//var material = new THREE.MeshLambertMaterial( { color: "#ffffff" } );
-//var cube = new THREE.Mesh( geometry, material );
-
-// Add cube to Scene
-//scene.add( cube );
-
-// Create a Tetrahedron Mesh with basic material
-// let geometry = new THREE.TetrahedronGeometry( 60 );
-// const triangle = new THREE.Geometry();
-// triangle.vertices.push(
-//   new THREE.Vector3(1,1,-2),
-//   new THREE.Vector3(1,-2,1),
-//   new THREE.Vector3(-2,1,1)
-// );
-// triangle.faces.push( new THREE.Face3( 0, 1, 2 ) );
-
 // Create a convex hull
 var points = [];
 for (var i = 0; i < 15; i++) {
@@ -76,114 +58,42 @@ for (var i = 0; i < 15; i++) {
 }
 
 var geometry = new THREE.ConvexGeometry(points);
-// var geometry = new THREE.SphereGeometry( 10, 32, 32 );
-// let subdivisionModifier = new THREE.SubdivisionModifier( 2, false );
-// var geometry = hullGeometry.clone();
-// subdivisionModifier.modify(geometry);
+let subdivisionModifier = new THREE.SubdivisionModifier( 2, true );
+subdivisionModifier.modify(geometry);
 
-
-//var material = new THREE.MeshLambertMaterial( { color: "#ffffff" } );
-//var tetra = new THREE.Mesh( geometry, material );
-//tetra.material.side = THREE.DoubleSide;
-//scene.add( tetra );
-
-// var masterGeometry = geometry.clone();    // copy oneFaceBuffer into a new geometry -> facetedGeometry
-// geometryFacesCounter= geometry.clone();
-// facetedGeometry = new THREE.Geometry();   // output list
-//
-// for ( var j = 0; j < geometry.vertices.length; j++ ) {
-//   facetedGeometry.vertices.push(geometry.vertices[j]);
-// }
-//
-// var faceter = 0; // This is the while-loop control variable. How many times should we facet the shape?
-//
-// //----------------------------------------------------------------------------------------------------------
-// while (faceter < 3) {
-//     for ( var i = 0; i < geometry.faces.length; i++ ) {
-//
-//           var oneFaceBuffer = new THREE.Geometry(); // create a buffer to hold one geometric face
-//           var face = masterGeometry.faces[0];       // set a variable to the 0 index of the starting geometry
-//           oneFaceBuffer.faces.push( face );         // push the 0 index face from the starting geometry to the buffer
-//
-//           if ( face instanceof THREE.Face3 ) {
-//
-//             oneFaceBuffer.vertices.push(masterGeometry.vertices[face.a]);  // get the nth vertex for the face and buffer it
-//             oneFaceBuffer.vertices.push(masterGeometry.vertices[face.b]);
-//             oneFaceBuffer.vertices.push(masterGeometry.vertices[face.c]);
-//
-//             var centroid = new THREE.Vector3( 0, 0, 0 );  // create a vector
-//             centroid.add( oneFaceBuffer.vertices[ 0 ] );  // push the associated vertices into Centroid vector
-//             //centroid.add( oneFaceBuffer.vertices[ 1 ] );
-//             centroid.add( oneFaceBuffer.vertices[ 2 ] );
-//             centroid.divideScalar( 2 );                   // devide Centroid vector by 3
-//             facetedGeometry.vertices.push(centroid);      // add Centroid as vertex a oneFaceBuffer's index 3
-//           }
-//           else if ( face instanceof THREE.Face4 ) {
-//
-//             oneFaceBuffer.vertices.push(masterGeometry.vertices[face.a]);
-//             oneFaceBuffer.vertices.push(masterGeometry.vertices[face.b]);
-//             oneFaceBuffer.vertices.push(masterGeometry.vertices[face.c]);
-//             oneFaceBuffer.vertices.push(masterGeometry.vertices[face.d]);
-//
-//             var centroid = new THREE.Vector3( 0, 0, 0 );
-//             centroid.add( oneFaceBuffer.vertices[ 0 ] );
-//             centroid.add( oneFaceBuffer.vertices[ 1 ] );
-//             centroid.add( oneFaceBuffer.vertices[ 2 ] );
-//             centroid.add( oneFaceBuffer.vertices[ 3 ] );
-//             centroid.divideScalar( 4 );
-//             facetedGeometry.vertices.push(centroid);
-//           }
-//
-//           lastVertex = (facetedGeometry.vertices.length - 1)
-//
-//           var face1 = new THREE.Face3( face.c, face.a, lastVertex );          // add three new faces to facetedGeometry
-//           facetedGeometry.faces.push( face1 );
-//           var face2 = new THREE.Face3( face.b, face.c, lastVertex );
-//           facetedGeometry.faces.push( face2 );
-//           var face3 = new THREE.Face3( face.a, face.b, lastVertex );
-//           facetedGeometry.faces.push( face3 );
-//
-//           // give the 4th vertex (the centroid) a random offset
-//
-//           //var distanceToCentroid = facetedGeometry.vertices[0].distanceTo( facetedGeometry.vertices[3] );
-//           //var range = distToCentroidScaling( distanceToCentroid, divisor );
-//
-//           lastVertex = (facetedGeometry.vertices.length - 1)
-//           //if ((Math.random() < 0.5 ? -1 : 1) < 0) {
-//               facetedGeometry.vertices[lastVertex].addScalar(randomRange(0.0, (1/(faceter+1))), randomRange(0.0, (1/(faceter+1))), randomRange(0.0, (1/(faceter+1))));
-//           //}
-//           facetedGeometry.verticesNeedUpdate = true;
-//
-//           facetedGeometry.computeFaceNormals();
-//           facetedGeometry.computeVertexNormals();
-//           facetedGeometry.verticesNeedUpdate = true;
-//           facetedGeometry.normalsNeedUpdate = true;
-//
-//           //testing sphere is to check centroid
-//           //testingSphere(facetedGeometry.vertices[lastVertex].x, facetedGeometry.vertices[lastVertex].y, facetedGeometry.vertices[lastVertex].z);
-//
-//     masterGeometry.faces.shift();
-//     //console.log(facetedGeometry.faces);
-//
-//     }
-//
-// var geometry = facetedGeometry.clone();
-// var masterGeometry = facetedGeometry.clone();
-// faceter += 1;
-//
-// }
-//----------------------------------------------------------------------------------------------------------
-
-const faceter = new GeoFaceter(geometry, 2);
+const faceter = new GeoFaceter(geometry, 1, 200, 2);
 facetedGeometry = faceter.returnFaceted();
-newMaterial = new THREE.MeshPhongMaterial( { color: "#d7d7d7" } );
-newMesh = new THREE.Mesh( facetedGeometry, newMaterial );
-newMesh.material.side = THREE.DoubleSide;
-scene.add( newMesh );
+
+facetedGeometry.computeFaceNormals();
+facetedGeometry.mergeVertices()
+facetedGeometry.computeVertexNormals();
+
+var buffer_g = new THREE.BufferGeometry();
+buffer_g.fromGeometry(geometry);
+
+//wall texture
+var texture = new THREE.TextureLoader().load( 'concrete.png' );
+texture.wrapS = THREE.RepeatWrapping;
+texture.wrapT = THREE.RepeatWrapping;
+texture.repeat.set( 1, 1 );
+
+let material = new THREE.MeshPhongMaterial( { map: texture, bumpMap: texture } );
+
+mesh = new THREE.Mesh( buffer_g, material );
+mesh.castShadow = true;
+mesh.receiveShadow = true;
+scene.add(mesh);
+
+
+// newMesh = new THREE.Mesh( facetedGeometry, material );
+// newMesh.material.side = THREE.DoubleSide;
+// newMesh.geometry.mergeVertices();
+//
+// scene.add( newMesh );
 
 // normals helpers
-normalsHelper = new THREE.FaceNormalsHelper( newMesh, 2, 0x00ff00, 1 );
-scene.add( normalsHelper );
+// normalsHelper = new THREE.FaceNormalsHelper( newMesh, 2, 0x00ff00, 1 );
+// scene.add( normalsHelper );
 // var vertexNormalsHelper = new THREE.VertexNormalsHelper( newMesh, 2, 0x00ff00, 1 );
 // scene.add( vertexNormalsHelper );
 

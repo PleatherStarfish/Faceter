@@ -1,8 +1,11 @@
 class GeoFaceter {
-  constructor(geometry, depth) {
+  constructor(geometry, depth, skew, rollOff) {
     this.geometry = geometry;
     this.depth = depth;
+    this.skew = skew
+    this.rollOff = rollOff
     this.counter = 0;
+
   }
 
 // Random floats within a range
@@ -83,15 +86,14 @@ distanceToCenter( v, geometry, boundingBox ) {
             facetedGeo.faces.push( face2 );
             facetedGeo.faces.push( face3 );
 
-            const skew = 1.0 / (60 * (this.counter+2));
+            const skewDiv = 1.0 / (this.skew * (this.counter + this.rollOff));
             for (let h = 0; h < facetedGeo.faces.length; h++) {
-
               let p1 = facetedGeo.vertices[facetedGeo.faces[h].a];
-              p1.multiplyScalar(this.randomRange((1-skew), (1+skew)), this.randomRange((1-skew), (1+skew)), this.randomRange((1-skew), (1+skew)));
+              p1.multiplyScalar(this.randomRange((1-skewDiv), (1+skewDiv)), this.randomRange((1-skewDiv), (1+skewDiv)), this.randomRange((1-skewDiv), (1+skewDiv)));
               let p2 = facetedGeo.vertices[facetedGeo.faces[h].b];
-              p2.multiplyScalar(this.randomRange((1-skew), (1+skew)), this.randomRange((1-skew), (1+skew)), this.randomRange((1-skew), (1+skew)));
+              p2.multiplyScalar(this.randomRange((1-skewDiv), (1+skewDiv)), this.randomRange((1-skewDiv), (1+skewDiv)), this.randomRange((1-skewDiv), (1+skewDiv)));
               let p3 = facetedGeo.vertices[facetedGeo.faces[h].c];
-              p3.multiplyScalar(this.randomRange((1-skew), (1+skew)), this.randomRange((1-skew), (1+skew)), this.randomRange((1-skew), (1+skew)));
+              p3.multiplyScalar(this.randomRange((1-skewDiv), (1+skewDiv)), this.randomRange((1-skewDiv), (1+skewDiv)), this.randomRange((1-skewDiv), (1+skewDiv)));
             }
 
       }
@@ -101,10 +103,11 @@ distanceToCenter( v, geometry, boundingBox ) {
       geometry = facetedGeo.clone();
     }
 
+    // mesh.geometry.mergeVertices();
     geometry.verticesNeedUpdate = true;
     geometry.normalsNeedUpdate = true;
-    geometry.computeFaceNormals();
-    geometry.computeVertexNormals();
+    // geometry.computeFaceNormals();
+    // geometry.computeVertexNormals();
 
     const boundingBox = new THREE.Box3().setFromPoints( geometry.vertices );
 
